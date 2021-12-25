@@ -17,6 +17,7 @@
 		<module>ges-rx-dao</module>
 		<module>ges-rx-srv</module>
 		<module>ges-api</module>
+		<module>ges-user-api</module>
     </modules>
 
 	<properties>
