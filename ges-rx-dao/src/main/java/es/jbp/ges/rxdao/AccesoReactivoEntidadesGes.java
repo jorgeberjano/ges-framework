@@ -2,6 +2,7 @@ package es.jbp.ges.rxdao;
 
 import es.jbp.ges.rxdao.conexion.GestorConexionesReactivas;
 import es.jbp.ges.rxdao.interfaces.IEjecutorComando;
+import es.jbp.ges.utilidades.ConversionValores;
 import es.jbp.ges.utilidades.GestorSimbolos;
 import es.jbp.comun.utiles.conversion.Conversion;
 import es.jbp.comun.utiles.sql.Plantilla;
@@ -9,9 +10,9 @@ import es.jbp.comun.utiles.sql.SecuenciaMaximoMasUno;
 import es.jbp.comun.utiles.sql.compatibilidad.FormateadorSql;
 import es.jbp.comun.utiles.sql.sentencia.SentenciaSql;
 import es.jbp.ges.entidad.*;
+import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
 import java.util.List;
 import java.util.Map;
 
@@ -52,33 +53,34 @@ public class AccesoReactivoEntidadesGes extends DaoReactivo {
 
         String tabla = consulta.getTabla();
         ejecutor.setTabla(tabla);
-        List<CampoGes> campos = consulta.getCampos();
 
-        for (CampoGes campo : campos) {
-            if (!campo.perteneceATabla(tabla)) {
-                continue;
-            }
+        consulta.getCampos().stream()
+                .filter(campo -> campo.perteneceATabla(tabla))
+                .forEach(campo -> asignarValor(ejecutor, campo, entidad));
 
-            String idCampo = campo.getIdCampo();
-            Object valor = entidad.getValor(idCampo);
-            if (valor == null && campo.isClave() && campo.isSecuencia()) {
-                valor = new SecuenciaMaximoMasUno();
-                entidad.setValor(idCampo, valor);
-            } else if (!entidad.contiene(idCampo)) {
-                continue;
-            }
-
-            String nombreSqlCampo = campo.getNombreCompleto();
-            ejecutor.agregarCampo(nombreSqlCampo, valor);
-        }
         return ejecutor.ejecutar(new ConstructorReactivoEntidadesGes(consulta)).take(1).next();
+    }
+
+    private void asignarValor(IEjecutorComando ejecutor, CampoGes campo, EntidadGes entidad) {
+        String idCampo = campo.getIdCampo();
+        Object valor = entidad.getValor(idCampo);
+
+        if (valor == null && campo.isClave() && campo.isSecuencia()) {
+            valor = new SecuenciaMaximoMasUno();
+            entidad.setValor(idCampo, valor);
+        } else if (!entidad.contiene(idCampo) && campo.getValorPorDefecto() == null) {
+            return;
+        } else if (valor == null && campo.getValorPorDefecto() != null) {
+            valor = ConversionValores.aValorBD(campo.getValorPorDefecto(), campo);
+        } else {
+            valor = ConversionValores.aValorBD(valor, campo);
+        }
+        String nombreSqlCampo = campo.getNombreCompleto();
+        ejecutor.agregarCampo(nombreSqlCampo, valor);
     }
 
     /**
      * Modifica una entidad.
-     *
-     * @param entidad la entidad
-     * @return true en caso de exito
      */
     public Mono<EntidadGes> modificar(EntidadGes entidad) {
         IEjecutorComando ejecutor = crearEjecutorSentenciaUpdate();
@@ -127,6 +129,9 @@ public class AccesoReactivoEntidadesGes extends DaoReactivo {
         return borrar(entidad.getClavePrimaria());
     }
 
+    /**
+     * Borra una entidad a partir de su clave primaria.
+     */
     public Mono<EntidadGes> borrar(ClavePrimaria clavePrimaria) {
 
         IEjecutorComando ejecutor = crearEjecutorSentenciaDelete();
@@ -185,7 +190,7 @@ public class AccesoReactivoEntidadesGes extends DaoReactivo {
             return null;
         }
         String strWhere = construirWhere(pk);
-        if (Conversion.isBlank(strWhere)) {
+        if (StringUtils.isBlank(strWhere)) {
             return null;
         }
 
@@ -286,8 +291,8 @@ public class AccesoReactivoEntidadesGes extends DaoReactivo {
             String idCampo = campo.getIdCampo();
             Object valor = pk.get(idCampo);
             if (valor != null) {
-                Object valorTipado = Conversion.convertirValor(valor, campo.getTipoDato());
-                String valorSql = SentenciaSql.aFormatoSql(valorTipado);
+                Object valorTipado = ConversionValores.aValorBD(valor, campo);
+                String valorSql = formateadorSql.formatear(valorTipado);
                 sentencia.where(nombreSqlCampo + " = " + valorSql);
             }
         }

@@ -1,8 +1,11 @@
 package es.jbp.ges.rxdao;
 
+import es.jbp.comun.utiles.tiempo.Fecha;
+import es.jbp.comun.utiles.tiempo.FechaAbstracta;
 import es.jbp.ges.rxdao.conexion.GestorConexionesReactivas;
 import es.jbp.ges.rxdao.interfaces.IEjecutorComando;
 import es.jbp.comun.utiles.sql.sentencia.SentenciaSql;
+import es.jbp.ges.utilidades.ConversionValores;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.Statement;
 import reactor.core.publisher.Flux;
@@ -37,6 +40,7 @@ public abstract class EjecutorReactivoComando implements IEjecutorComando {
 
     @Override
     public void agregarCampo(String nombreSqlCampo, Object valor) {
+        valor = ajustarTipoValor(valor);
         if (valor != null) {
             String nombreParametro = agregarParametro(valor);
             sentenciaSql.asignarValorSql(nombreSqlCampo, nombreParametro);
@@ -46,6 +50,7 @@ public abstract class EjecutorReactivoComando implements IEjecutorComando {
     }
 
     public void agregarPk(String nombreSqlCampo, Object valor) {
+        valor = ajustarTipoValor(valor);
         if (valor != null) {
             sentenciaSql.where(nombreSqlCampo + " = " + gestorConexiones.getFormateadorSql().formatear(valor));
         } else {
@@ -53,11 +58,20 @@ public abstract class EjecutorReactivoComando implements IEjecutorComando {
         }
     }
 
-    public String agregarParametro(Object valor) {
+    protected String agregarParametro(Object valor) {
         int indice = mapaParametros.keySet().size();
         String nombreParametro = gestorConexiones.getFormateadorSql().getNombreParametro(indice);
         mapaParametros.put(nombreParametro, valor);
         return nombreParametro;
     }
 
+    protected Object ajustarTipoValor(Object valor) {
+        if (valor instanceof Fecha) {
+            return ((Fecha) valor).getLocalDate();
+        } else if (valor instanceof FechaAbstracta) {
+            return ((FechaAbstracta) valor).getLocalDateTime();
+        } else {
+            return valor;
+        }
+    }
 }

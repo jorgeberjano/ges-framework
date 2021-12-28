@@ -69,8 +69,6 @@ public class CampoGes implements Campo, Serializable, Cloneable {
     private String valorNulo;
     private String valorPorDefecto;
 
-//    private List<String> opciones;
-//    private List<String> opcionesNetas;
     private OpcionesEnumerado opcionesEnumerado;
 
     private int indice;
@@ -347,30 +345,6 @@ public class CampoGes implements Campo, Serializable, Cloneable {
     public String getNombreCompleto() {
         return Conversion.isBlank(tabla) ? nombre : tabla + "." + nombre;
     }
-
-    public String getTipoDatoJava() {
-        if (tipoDato == null) {
-            return null;
-        }
-        switch (tipoDato) {
-            case CADENA:
-                return "java.lang.String";
-            case ENTERO:
-                return "java.lang.Integer";
-            case REAL:
-                return "java.lang.Double";
-            case BOOLEANO:
-                return "java.lang.Boolean";
-            case FECHA:
-                return "es.jbp.comun.utiles.tiempo.Fecha";
-            case FECHA_HORA:
-                return "es.jbp.comun.utiles.tiempo.FechaHora";
-            case BYTES:
-                return "byte[]";
-            default:
-                return null;
-        }
-    }
    
     public boolean esFormatoEnumerado() {
          return formato != null && formato.startsWith("#");
@@ -416,12 +390,12 @@ public class CampoGes implements Campo, Serializable, Cloneable {
         return opcionesEnumerado;
     }
     
-    public List<String> getOpciones() {
-        if (!tieneOpciones()) {
-            return null;
-        }
-        return opcionesEnumerado.getListaTextos();
-    }
+//    public List<String> getOpciones() {
+//        if (!tieneOpciones()) {
+//            return null;
+//        }
+//        return opcionesEnumerado.getListaTextos();
+//    }
     
     public boolean tieneOpciones() {
         return getOpcionesEnumerado() != null;
@@ -489,11 +463,6 @@ public class CampoGes implements Campo, Serializable, Cloneable {
 
     public boolean esTotalizable() {
         return tipoRol == TipoRolGes.FTOTAL || tipoRol == TipoRolGes.ITOTAL;
-    }
-
-    public String toJson() {
-        Gson gson = new GsonBuilder().create();
-        return gson.toJson(this);
     }
 
     @Override

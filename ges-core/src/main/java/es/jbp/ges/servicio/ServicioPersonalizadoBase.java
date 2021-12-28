@@ -10,71 +10,29 @@ import es.jbp.ges.entidad.EntidadGes;
  */
 public class ServicioPersonalizadoBase implements IServicioPersonalizado {
     protected IServicioEntidad servicioEntidad;
-    private String mensajeError;
 
     @Override
-    public String getMensajeError() {
-        return mensajeError;
+    public String getIdConsulta() {
+        return "";
     }
 
-    @Override
-    public void setMensajeError(String mensajeError) {
-        this.mensajeError = mensajeError;
-    }
-    
     @Override
     public void setServicioEntidad(IServicioEntidad servicio) {
         this.servicioEntidad = servicio;
     }
     
     @Override
-    public boolean validar(EntidadGes entidad, OperacionCrud operacion) {
-        return validar(entidad);
+    public void validar(EntidadGes entidad, OperacionCrud operacion) {
     }
-    
-    public boolean validar(EntidadGes entidad) {
-        return true;
-    }
+
 
     @Override
     public EntidadGes preOperacion(EntidadGes entidad, OperacionCrud operacion) {
-        switch (operacion) {            
-            case INSERCCION:
-            case MODIFICACION:
-                return guardando(entidad);
-            default:
-                return entidad;
-        }
+        return entidad;
     }
 
     @Override
     public EntidadGes postOperacion(EntidadGes entidad, OperacionCrud operacion) {        
-        switch (operacion) {
-            case CONSULTA:
-                return consultando(entidad);
-                
-            case INSERCCION:
-                inserccionRealizada(entidad);
-                break;
-            case MODIFICACION:
-                modificionRealizada(entidad);
-                break;            
-        }
         return entidad;
-    }
-    
-    public EntidadGes consultando(EntidadGes entidad) {
-        return entidad;
-    }
-
-    @Deprecated
-    public EntidadGes guardando(EntidadGes entidad) {
-        return entidad;
-    }
-
-    public void inserccionRealizada(EntidadGes entidad) {        
-    }
-    
-    public void modificionRealizada(EntidadGes entidad) {
     }
 }

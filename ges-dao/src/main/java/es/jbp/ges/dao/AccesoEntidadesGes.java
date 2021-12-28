@@ -7,6 +7,7 @@ import es.jbp.ges.entidad.CampoGes;
 import es.jbp.ges.entidad.Orden;
 import es.jbp.ges.entidad.Pagina;
 import es.jbp.ges.entidad.ConsultaGes;
+import es.jbp.ges.utilidades.ConversionValores;
 import es.jbp.ges.utilidades.GestorSimbolos;
 import es.jbp.comun.utiles.conversion.Conversion;
 import es.jbp.comun.utiles.sql.ConstructorString;
@@ -383,8 +384,8 @@ public class AccesoEntidadesGes extends Dao {
             String idCampo = campo.getIdCampo();
             Object valor = pk.get(idCampo);
             if (valor != null) {
-                Object valorTipado = Conversion.convertirValor(valor, campo.getTipoDato());
-                String valorSql = SentenciaSql.aFormatoSql(valorTipado);
+                Object valorTipado = ConversionValores.aValorBD(valor, campo);
+                String valorSql = formateadorSql.formatear(valorTipado);
                 sentencia.where(nombreSqlCampo + " = " + valorSql);
             }
         }

@@ -43,7 +43,7 @@ public class ExportadorCsv implements Exportador {
                     writer.append(";");
                 }
                 Object valor = entidad.getValor(campo.getIdCampo());
-                String texto = ConversionValores.aValorUI(valor, campo);
+                String texto = ConversionValores.aValorTexto(valor, campo);
                 writer.append(texto);                
             }
             writer.append("\n");

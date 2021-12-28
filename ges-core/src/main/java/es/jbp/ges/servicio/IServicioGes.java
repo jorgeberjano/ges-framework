@@ -23,8 +23,6 @@ public interface IServicioGes {
     
     void definirSimbolo(String idioma, String nombre, String valor);
 
-    void registrarServicioPersonalizado(String idConsulta, IServicioPersonalizado servicio);
-    
     void registrarConversorValores(IConversorValores manipulador);
     
     IServicioPersonalizado obtenerServicioPersonalizado(String idConsulta);    

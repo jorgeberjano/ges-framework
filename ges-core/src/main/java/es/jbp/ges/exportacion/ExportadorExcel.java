@@ -54,7 +54,7 @@ public class ExportadorExcel implements Exportador {
                     continue;
                 }            
                 Object valor = entidad.getValor(campo.getIdCampo());
-                String texto = ConversionValores.aValorUI(valor, campo);
+                String texto = ConversionValores.aValorTexto(valor, campo);
                 
                 Cell cell = row.createCell(colNum++);
                 if (campo.getTipoDato() == TipoDato.REAL) {

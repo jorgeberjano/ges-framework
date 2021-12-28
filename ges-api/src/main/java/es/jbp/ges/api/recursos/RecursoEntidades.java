@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.io.IOException;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -34,12 +35,16 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/{idioma}/entidades/{idConsulta}")
 @CrossOrigin(origins = "*", allowedHeaders = "*", exposedHeaders = "X-Total-Count")
 public class RecursoEntidades {
+
+    @Autowired
+    private HttpServletRequest context;
 
     @Autowired
     IServicioEntidad servicio;
@@ -107,7 +112,12 @@ public class RecursoEntidades {
     }
 
     private Mono<MapaValores> extraerValores(Mono<EntidadGes> entidad) {
-        return entidad.map(EntidadGes::getValores).map(servicio::convertirAValoresUI);
+        String userAgent = context.getHeader("User-Agent");
+        if (StringUtils.isNotBlank(userAgent) && userAgent.contains("Postman")) {
+            return entidad.map(EntidadGes::getValores).map(servicio::convertirAValoresJson);
+        } else {
+            return entidad.map(EntidadGes::getValores).map(servicio::convertirAValoresTexto);
+        }
     }
 
     private Flux<MapaValores> extraerValores(Flux<EntidadGes> entidad) {
@@ -229,7 +239,6 @@ public class RecursoEntidades {
         } catch (GesNotFoundExcepion e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
-
     }
 
     @PostMapping(value = "", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -352,7 +361,7 @@ public class RecursoEntidades {
             @PathVariable final String formato,
             @Parameter(required = true, description = "Parámetros de filtro y orden")
             @RequestParam Map<String, String> params,
-            HttpServletResponse response) {
+            HttpServletResponse response) throws Exception {
 
         servicio.asignarConsulta(idioma, idConsulta);
 
@@ -364,11 +373,8 @@ public class RecursoEntidades {
         } catch (IOException ex) {
             return;
         }
-        try {
-            servicio.exportar(out, formato, params);
-        } catch (GesBadRequestException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        }
+
+        servicio.exportar(out, formato, params);
     }
 
 }

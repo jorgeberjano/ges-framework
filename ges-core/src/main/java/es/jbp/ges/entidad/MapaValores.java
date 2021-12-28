@@ -43,7 +43,6 @@ public class MapaValores extends LinkedHashMap<String, Object> {
                 if (campo == null) {
                         return;
                 }
-                //Object valor = campo.convertirValor(asignacion[1]);
                 Object valor = asignacion[1];
                 valor = ConversionValores.aValorBD(valor, campo);
                 put(id, valor);
@@ -64,7 +63,7 @@ public class MapaValores extends LinkedHashMap<String, Object> {
             }
             builder.append(nombre);
             builder.append(separadorNombreValor);
-            builder.append(valor.toString());
+            builder.append(valor);
             vacia = false;
         }
         return builder.toString();

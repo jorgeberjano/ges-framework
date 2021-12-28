@@ -15,8 +15,8 @@ public class BuilderConsulta {
     private ExpresionOrden expresionOrden;
     private ExpresionPagina expresionPagina;
     
-    private IConversorValores conversorValores;
-    private ConsultaGes consulta;
+    private final IConversorValores conversorValores;
+    private final ConsultaGes consulta;
     
     public BuilderConsulta(ConsultaGes consulta, IConversorValores conversorValores) {
         this.conversorValores = conversorValores;

@@ -61,11 +61,13 @@ public interface IServicioEntidad {
 
     Mono<EntidadGes> borrarEntidadPorId(String id) throws GesBadRequestException, GesNotFoundExcepion;
 
-    void exportar(OutputStream out, String formato, Map<String, String> params) throws GesBadRequestException;
+    void exportar(OutputStream out, String formato, Map<String, String> params) throws Exception;
 
     BuilderConsulta builder();
 
-    MapaValores convertirAValoresUI(Map<String, ? extends Object> mapaOriginal);
+    MapaValores convertirAValoresTexto(Map<String, ? extends Object> mapaOriginal);
 
     MapaValores convertirAValoresBD(Map<String, ? extends Object> mapaOriginal);
+
+    MapaValores convertirAValoresJson(Map<String, ? extends Object> mapaOriginal);
 }

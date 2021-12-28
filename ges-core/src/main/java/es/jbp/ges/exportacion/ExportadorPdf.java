@@ -142,7 +142,7 @@ public class ExportadorPdf implements Exportador {
                     acumulador.acumularValor(campo.getIdCampo(), entidad.getValor(campo.getIdCampo()));
                 }
                 Object valor = entidad.getValor(campo.getIdCampo());
-                String texto = ConversionValores.aValorUI(valor, campo);
+                String texto = ConversionValores.aValorTexto(valor, campo);
                 
                 PdfPCell celda = new PdfPCell(new Phrase(texto, fuenteNormal));
                 celda.setHorizontalAlignment(getAlineacionPdf(campo.getAlineacion()));
@@ -158,7 +158,7 @@ public class ExportadorPdf implements Exportador {
                 PdfPCell celda;
                 if (campo.esTotalizable()) {
                     Double total = acumulador.getAcumulado(campo.getIdCampo());
-                    Object valor = Conversion.convertirValor(total, campo.getTipoDato());
+                    Object valor = ConversionValores.aValorJson(total, campo);
                     String texto = campo.formatearValor(valor, false);
                     celda = new PdfPCell(new Phrase(texto, fuenteNormal));
                 } else {

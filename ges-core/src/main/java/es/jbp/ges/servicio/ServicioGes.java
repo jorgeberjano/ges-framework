@@ -1,27 +1,24 @@
-package es.jbp.ges.rxsrv;
+package es.jbp.ges.servicio;
 
+import es.jbp.comun.utiles.depuracion.GestorLog;
+import es.jbp.ges.conversion.ConversorValoresBase;
+import es.jbp.ges.conversion.IConversorValores;
 import es.jbp.ges.entidad.ConsultaGes;
 import es.jbp.ges.entidad.Ges;
+import es.jbp.ges.serializacion.SerializadorGes;
+import es.jbp.ges.serializacion.SerializadorGesJson;
 import es.jbp.ges.serializacion.SerializadorGesXml;
-import es.jbp.ges.servicio.IServicioGes;
-import es.jbp.ges.servicio.IServicioPersonalizado;
-import es.jbp.ges.servicio.ServicioPersonalizadoBase;
 import es.jbp.ges.utilidades.GestorSimbolos;
-import es.jbp.comun.utiles.depuracion.GestorLog;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import es.jbp.ges.conversion.ConversorValoresBase;
+
 import java.util.ArrayList;
-import es.jbp.ges.conversion.IConversorValores;
-import es.jbp.ges.serializacion.SerializadorGes;
-import es.jbp.ges.serializacion.SerializadorGesJson;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Servicio que proporciona los metadatos segun el idioma.
@@ -31,11 +28,16 @@ import es.jbp.ges.serializacion.SerializadorGesJson;
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class ServicioGes implements IServicioGes {
     
-    private final Map<String, IServicioPersonalizado> mapaServiciosPersonalizados = new HashMap<>();
+    private final Map<String, IServicioPersonalizado> mapaServiciosPersonalizados;
     private final IServicioPersonalizado manipuladorNulo = new ServicioPersonalizadoBase();
     private IConversorValores conversorValores = new ConversorValoresBase();
-    private final Map<String, Ges> mapaGestores = new HashMap<>();   
-    
+    private final Map<String, Ges> mapaGestores = new HashMap<>();
+
+    public ServicioGes(List<IServicioPersonalizado> serviciosPersonalizados) {
+        mapaServiciosPersonalizados = serviciosPersonalizados.stream()
+                .collect(Collectors.toMap(IServicioPersonalizado::getIdConsulta, Function.identity()));
+    }
+
     @Override
     public void crearGestor(String idioma, String archivoGes, Map<String, Object> mapaSimbolos) {
         
@@ -96,11 +98,6 @@ public class ServicioGes implements IServicioGes {
     }
 
     @Override
-    public void registrarServicioPersonalizado(String idConsulta, IServicioPersonalizado servicio) {
-        mapaServiciosPersonalizados.put(idConsulta, servicio);
-    }
-    
-    @Override
     public void registrarConversorValores(IConversorValores manipulador) {
         this.conversorValores = manipulador;
     }
@@ -135,4 +132,5 @@ public class ServicioGes implements IServicioGes {
         }
         gestor.definirSimbolo(nombre, valor);
     }
+
 }
