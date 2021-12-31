@@ -7,6 +7,7 @@ import es.jbp.ges.conversion.IConversorValores;
 import es.jbp.ges.crud.OperacionCrud;
 import es.jbp.ges.entidad.*;
 import es.jbp.ges.excepciones.GesBadRequestException;
+import es.jbp.ges.excepciones.GesInternalException;
 import es.jbp.ges.excepciones.GesNotFoundExcepion;
 import es.jbp.ges.exportacion.Exportador;
 import es.jbp.ges.exportacion.FactoriaExportadores;
@@ -254,13 +255,18 @@ public abstract class ServicioEntidadBase implements IServicioEntidad {
     }
 
     @Override
-    public void exportar(OutputStream out, String formato, Map<String, String> parametros) throws Exception {
+    public void exportar(OutputStream out, String formato, Map<String, String> parametros) {
         Exportador exportador = FactoriaExportadores.crearExportador(formato);
         if (exportador == null) {
             throw new GesBadRequestException("El formato de exportación " + formato + " no está soportado");
         }
         Flux<EntidadGes> entidades = getEntidades(parametros);
-        exportador.generar(out, consulta, entidades);
+
+        try {
+            exportador.generar(out, consulta, entidades);
+        } catch (Exception e) {
+            throw new GesInternalException(e.getMessage());
+        }
     }
 
     public BuilderConsulta builder() {

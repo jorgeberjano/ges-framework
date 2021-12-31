@@ -1,14 +1,13 @@
 package es.jbp.ges.rxdao.servicio;
 
-import es.jbp.comun.utiles.conversion.Conversion;
-import es.jbp.comun.utiles.sql.TipoDato;
 import es.jbp.ges.crud.OperacionCrud;
 import es.jbp.ges.entidad.*;
 import es.jbp.ges.excepciones.GesBadRequestException;
 import es.jbp.ges.excepciones.GesNotFoundExcepion;
-import es.jbp.ges.exportacion.Exportador;
-import es.jbp.ges.exportacion.FactoriaExportadores;
-import es.jbp.ges.filtroyorden.*;
+import es.jbp.ges.filtroyorden.ExpresionConsulta;
+import es.jbp.ges.filtroyorden.ExpresionFiltro;
+import es.jbp.ges.filtroyorden.ExpresionOrden;
+import es.jbp.ges.filtroyorden.ExpresionPagina;
 import es.jbp.ges.rxdao.AccesoReactivoEntidadesGes;
 import es.jbp.ges.rxdao.conexion.GestorConexionesReactivas;
 import es.jbp.ges.rxdao.conexion.ServicioGestorConexionesReactivas;
@@ -18,19 +17,12 @@ import es.jbp.ges.servicio.ServicioEntidadBase;
 import es.jbp.ges.utilidades.ConversionEntidades;
 import es.jbp.ges.utilidades.ConversionValores;
 import es.jbp.ges.utilidades.GestorSimbolos;
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.SynchronousSink;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 /**
  * Servicio para acceder a entidades genéricas GES.
@@ -312,117 +304,5 @@ public class ServicioEntidad extends ServicioEntidadBase {
     public MapaValores convertirAValoresBD(Map<String, ? extends Object> mapaOriginal) {
         return convertirValores(mapaOriginal, ConversionValores::aValorBD);
     }
-
-//    public MapaValores convertirValores(Map<String, ? extends Object> mapaOriginal, BiFunction<Object, CampoGes, Object> func) {
-//        MapaValores mapaValores = new MapaValores();
-//        for (String idCampo : mapaOriginal.keySet()) {
-//            Object valorOriginal = mapaOriginal.get(idCampo);
-//            CampoGes campo = consulta.getCampoPorId(idCampo);
-//            if (campo == null) {
-//                continue;
-//            }
-//            Object valor = func.apply(valorOriginal, campo);
-//            mapaValores.put(idCampo, valor);
-//        }
-//        return mapaValores;
-//    }
-
-//    public ExpresionOrden crearOrden(Map<String, String> parametros) throws GesBadRequestException {
-//        ExpresionOrden expresion = new ExpresionOrden();
-//        if (parametros == null) {
-//            return expresion;
-//        }
-//        String sort = parametros.get("_sort");
-//        String order = parametros.get("_order");
-//
-//        List<String> listaSort = Conversion.convertirTextoEnLista(sort);
-//        List<String> listaOrder = Conversion.convertirTextoEnLista(order);
-//
-//        List<String> listaCamposInexistentes = listaSort.stream()
-//                .filter(idCampo -> consulta.getCampoPorId(idCampo) == null)
-//                .collect(Collectors.toList());
-//
-//        if (!listaCamposInexistentes.isEmpty()) {
-//            throw new GesBadRequestException("No se puede ordenar por "
-//                    + Conversion.convertirListaEnTexto(listaCamposInexistentes, ", "));
-//        }
-//
-//        List<CampoGes> campos = listaSort.stream()
-//                .map(e -> consulta.getCampoPorId(e))
-//                .filter(c -> c != null)
-//                .collect(Collectors.toList());
-//        List<Boolean> descendentes = listaOrder.stream()
-//                .map(e -> "desc".equals(e.toLowerCase()))
-//                .collect(Collectors.toList());
-//
-//        for (int i = 0; i < campos.size(); i++) {
-//            CampoGes campo = campos.get(i);
-//            boolean descendente = false;
-//            if (i < descendentes.size()) {
-//                descendente = Boolean.TRUE.equals(descendentes.get(i));
-//            }
-//            expresion.agregarCondicion(new CondicionOrden(campo, descendente));
-//        }
-//        return expresion;
-//    }
-
-//    public ExpresionPagina crearPagina(Map<String, String> parametros) {
-//        ExpresionPagina pagina = new ExpresionPagina();
-//        if (parametros == null) {
-//            return pagina;
-//        }
-//        pagina.setPagina(Conversion.toInteger(parametros.get("_page")));
-//        pagina.setLimite(Conversion.toInteger(parametros.get("_limit")));
-//        pagina.setPrimero(Conversion.toInteger(parametros.get("_start")));
-//        pagina.setUltimo(Conversion.toInteger(parametros.get("_end")));
-//        return pagina;
-//    }
-
-//    protected void comprobarEntidad(EntidadGes entidad) throws GesNotFoundExcepion, GesBadRequestException {
-//        if (entidad == null) {
-//            throw new GesNotFoundExcepion(ENTIDAD_NO_EXISTE);
-//        }
-//        for (CampoGes campo : consulta.getCampos()) {
-//            Object valor = entidad.getValor(campo.getIdCampo());
-//            comprobarRequerido(campo, valor);
-//            comprobarCadena(campo, valor);
-//        }
-//    }
-
-//    protected void comprobarRequerido(CampoGes campo, Object valor) throws GesBadRequestException {
-//        if (campo.isRequerido() && valor == null) {
-//            throw new GesBadRequestException("El campo " + campo.getTitulo() + " debe tener un valor");
-//        }
-//    }
-
-//    protected void comprobarCadena(CampoGes campo, Object valor) throws GesBadRequestException {
-//        if (campo.getTipoDato() != TipoDato.CADENA) {
-//            return;
-//        }
-//        String valorString = Conversion.toString(valor);
-//        boolean vacia = Conversion.isBlank(valorString);
-//        if (campo.isRequerido() && vacia) {
-//            throw new GesBadRequestException("El valor del campo " + campo.getTitulo() + " no puede estar vacío");
-//        } else if (!vacia && campo.getTamano() > 0 && valorString.length() > campo.getTamano()) {
-//            throw new GesBadRequestException("El valor del campo " + campo.getTitulo() + " excede su tamaño máximio de " + campo.getTamano() + " caracteres");
-//        }
-//    }
-
-//    @Override
-//    public void exportar(OutputStream out, String formato, Map<String, String> parametros) throws GesBadRequestException {
-//        Exportador exportador = FactoriaExportadores.crearExportador(formato);
-//        if (exportador == null) {
-//            throw new GesBadRequestException("En formato de exportación " + formato + " no está soportado");
-//        }
-//
-//        Flux<EntidadGes> entidades = getEntidades(parametros);
-//
-//        try {
-//            exportador.generar(out, consulta, entidades);
-//        } catch (Exception ex) {
-//            String mensajeError = "No se ha podido exportar a " + formato;
-//            throw new InternalError(mensajeError, ex);
-//        }
-//    }
 
 }

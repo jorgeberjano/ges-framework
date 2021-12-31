@@ -1,5 +1,6 @@
 package es.jbp.ges.userapi.recursos;
 
+import es.jbp.ges.servicio.IServicioJson;
 import es.jbp.ges.userapi.dto.UsuarioRegistro;
 import es.jbp.ges.userapi.excepciones.ApiException;
 import es.jbp.ges.userapi.servicio.ServicioRegistroUsuarios;
@@ -23,7 +24,7 @@ public class RecursoUsuarios {
     private ServicioRegistroUsuarios servicioUsuarios;
 
     @PostMapping(value = "", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    @Operation(summary = "Registrar usuario", description = "Registra un usario de una empresa")
+    @Operation(summary = "Registrar usuario", description = "Registra un usuario de una empresa")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Éxito. La respuesta contiene el JSON con los valores de la entidad insertada"),
             @ApiResponse(responseCode = "500", description = "Error interno en el servidor"),
@@ -38,7 +39,5 @@ public class RecursoUsuarios {
         } catch (ApiException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No se ha podido registrar el usuario", e);
         }
-
-
     }
 }

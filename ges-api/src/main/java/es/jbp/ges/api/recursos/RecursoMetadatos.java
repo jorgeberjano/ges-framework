@@ -20,27 +20,25 @@ import org.springframework.web.server.ResponseStatusException;
  * @author jorge
  */
 @RestController
-@RequestMapping("/{idioma}")
+@RequestMapping("")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class RecursoMetadatos {
 
     @Autowired
     @Qualifier("metadatos")
-    private IServicioMetadatos servicioMetadatos;        
+    private IServicioMetadatos servicioMetadatos;
+
+    private String idioma = "es";
     
     @GetMapping(value="/entidades", produces={ MediaType.APPLICATION_JSON_VALUE })
     @Operation(summary = "Obtener nombre de consultas de entidades", description = "Obtiene un array con los nombres de las consultas de entidades disponibles")
-    public String obtenerConsultas(
-            @Parameter(required = true, description = "Idioma en el que se proporcionan los datos que estén internacionalizados (es, en, ...)")
-            @PathVariable final String idioma) {
+    public String obtenerConsultas() {
         return servicioMetadatos.getIdsConsultas(idioma);
     }
     
     @GetMapping(value="/metadatos", produces={ MediaType.APPLICATION_JSON_VALUE })
     @Operation(summary = "Obtener metadatos", description = "Obtiene los metadatos de todas las consultas")
-    public String obtenerMetadatos(
-            @Parameter(required = true, description = "Idioma en el que se proporcionan los datos que estén internacionalizados (es, en, ...)")
-            @PathVariable final String idioma) {
+    public String obtenerMetadatos() {
 
         try {
             return servicioMetadatos.getMetadatosConsultasJson(idioma);
@@ -52,8 +50,6 @@ public class RecursoMetadatos {
     @Operation(summary = "Obtener metadatos de una consulta", description = "Obtiene los metadatos de una consulta de entidades indicando su identificador")
     @GetMapping(value="/metadatos/{idConsulta}", produces={ MediaType.APPLICATION_JSON_VALUE })
     public String obtenerMetadatosConsulta(
-            @Parameter(required = true, description = "Idioma en el que se proporcionan los datos que estén internacionalizados (es, en, ...)")
-            @PathVariable final String idioma,
             @Parameter(required = true, description = "Identificador de la consulta")
             @PathVariable final String idConsulta) {
         try {

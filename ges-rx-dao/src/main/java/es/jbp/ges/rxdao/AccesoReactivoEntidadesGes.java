@@ -56,22 +56,23 @@ public class AccesoReactivoEntidadesGes extends DaoReactivo {
 
         consulta.getCampos().stream()
                 .filter(campo -> campo.perteneceATabla(tabla))
-                .forEach(campo -> asignarValor(ejecutor, campo, entidad));
+                .forEach(campo -> asignarValorInsercion(ejecutor, campo, entidad));
 
         return ejecutor.ejecutar(new ConstructorReactivoEntidadesGes(consulta)).take(1).next();
     }
 
-    private void asignarValor(IEjecutorComando ejecutor, CampoGes campo, EntidadGes entidad) {
+    private void asignarValorInsercion(IEjecutorComando ejecutor, CampoGes campo, EntidadGes entidad) {
         String idCampo = campo.getIdCampo();
         Object valor = entidad.getValor(idCampo);
+        Object valorPorDefecto = campo.getValorPorDefecto();
 
         if (valor == null && campo.isClave() && campo.isSecuencia()) {
             valor = new SecuenciaMaximoMasUno();
             entidad.setValor(idCampo, valor);
-        } else if (!entidad.contiene(idCampo) && campo.getValorPorDefecto() == null) {
+        } else if (!entidad.contiene(idCampo) && valorPorDefecto == null) {
             return;
-        } else if (valor == null && campo.getValorPorDefecto() != null) {
-            valor = ConversionValores.aValorBD(campo.getValorPorDefecto(), campo);
+        } else if (valor == null && valorPorDefecto != null) {
+            valor = ConversionValores.aValorBD(valorPorDefecto, campo);
         } else {
             valor = ConversionValores.aValorBD(valor, campo);
         }

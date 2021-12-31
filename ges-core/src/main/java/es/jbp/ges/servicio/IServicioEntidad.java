@@ -27,41 +27,41 @@ public interface IServicioEntidad {
 
     IConversorValores getConversorValores();
 
-    ClavePrimaria crearClavePrimaria(Map<String, ? extends Object> clavePrimaria) throws GesBadRequestException;
+    ClavePrimaria crearClavePrimaria(Map<String, ? extends Object> clavePrimaria);
 
-    ClavePrimaria crearClavePrimaria(String... valoresClave) throws GesBadRequestException;
+    ClavePrimaria crearClavePrimaria(String... valoresClave);
 
-    Mono<EntidadGes> getEntidad(ClavePrimaria clavePrimaria) throws GesBadRequestException;
+    Mono<EntidadGes> getEntidad(ClavePrimaria clavePrimaria);
 
-    Mono<EntidadGes> getEntidad(String id) throws GesBadRequestException;
+    Mono<EntidadGes> getEntidad(String id);
 
-    PaginaRxEntidades<EntidadGes> getPaginaEntidades(Map<String, String> parametros) throws GesBadRequestException;
+    PaginaRxEntidades<EntidadGes> getPaginaEntidades(Map<String, String> parametros);
 
-    PaginaRxEntidades<EntidadGes> getPaginaEntidades(ExpresionFiltro filtro, ExpresionOrden orden, ExpresionPagina pagina) throws GesBadRequestException;
+    PaginaRxEntidades<EntidadGes> getPaginaEntidades(ExpresionFiltro filtro, ExpresionOrden orden, ExpresionPagina pagina);
 
-    Flux<EntidadGes> getEntidades(Map<String, String> parametros) throws GesBadRequestException;
+    Flux<EntidadGes> getEntidades(Map<String, String> parametros);
 
-    Flux<EntidadGes> getEntidades(ExpresionFiltro filtro, ExpresionOrden orden) throws GesBadRequestException;
+    Flux<EntidadGes> getEntidades(ExpresionFiltro filtro, ExpresionOrden orden);
 
     Flux<EntidadGes> getEntidades() throws GesBadRequestException;
 
-    Mono<EntidadGes> insertarEntidad(EntidadGes entidad) throws GesBadRequestException, GesNotFoundExcepion;
+    Mono<EntidadGes> insertarEntidad(EntidadGes entidad);
 
-    Mono<EntidadGes> insertarEntidadJson(String json) throws GesBadRequestException, GesNotFoundExcepion;
+    Mono<EntidadGes> insertarEntidadJson(String json);
 
-    Mono<EntidadGes> modificarEntidad(EntidadGes entidad) throws GesBadRequestException, GesNotFoundExcepion;
+    Mono<EntidadGes> modificarEntidad(EntidadGes entidad);
 
-    Mono<EntidadGes> modificarEntidadJson(String json) throws GesBadRequestException, GesNotFoundExcepion;
+    Mono<EntidadGes> modificarEntidadJson(String json);
 
-    Mono<EntidadGes> modificarEntidadJson(ClavePrimaria clave, String json) throws GesBadRequestException, GesNotFoundExcepion;
+    Mono<EntidadGes> modificarEntidadJson(ClavePrimaria clave, String json);
 
-    Mono<EntidadGes> modificarEntidadJson(String id, String json) throws GesBadRequestException, GesNotFoundExcepion;
+    Mono<EntidadGes> modificarEntidadJson(String id, String json);
 
-    Mono<EntidadGes> borrarEntidad(ClavePrimaria clave) throws GesBadRequestException;
+    Mono<EntidadGes> borrarEntidad(ClavePrimaria clave);
 
-    Mono<EntidadGes> borrarEntidadPorId(String id) throws GesBadRequestException, GesNotFoundExcepion;
+    Mono<EntidadGes> borrarEntidadPorId(String id);
 
-    void exportar(OutputStream out, String formato, Map<String, String> params) throws Exception;
+    void exportar(OutputStream out, String formato, Map<String, String> params);
 
     BuilderConsulta builder();
 

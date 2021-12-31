@@ -28,7 +28,7 @@ public class ConstructorReactivoEntidadesGes extends ConstructorReactivoEntidade
                 continue;
             }
             if (!rowMetadata.getColumnNames().contains(campo.getNombre())) {
-                GestorLog.traza("La columna no existe: " + campo.getNombre());
+                //GestorLog.traza("La columna no existe: " + campo.getNombre());
                 continue;
             }
             Object valor = row.get(campo.getNombre());

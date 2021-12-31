@@ -39,7 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
-@RequestMapping("/{idioma}/entidades/{idConsulta}")
+@RequestMapping("/entidades/{idConsulta}")
 @CrossOrigin(origins = "*", allowedHeaders = "*", exposedHeaders = "X-Total-Count")
 public class RecursoEntidades {
 
@@ -47,7 +47,9 @@ public class RecursoEntidades {
     private HttpServletRequest context;
 
     @Autowired
-    IServicioEntidad servicio;
+    private IServicioEntidad servicio;
+
+    private String idioma = "es";
 
     /**
      * Creates a new instance of RecursoEntidad
@@ -65,8 +67,6 @@ public class RecursoEntidades {
             @ApiResponse(responseCode = "500", description = "Error interno en el servidor")
     })
     public Flux<MapaValores> obtenerEntidades(
-            @Parameter(required = true, description = "Idioma en el que se proporcionan los datos que estén internacionalizados (es, en, ...)")
-            @PathVariable final String idioma,
             @Parameter(required = true, description = "Identificador de la consulta")
             @PathVariable final String idConsulta,
             @Parameter(required = true, description = "Parámetros de filtro, orden y paginación")
@@ -95,8 +95,6 @@ public class RecursoEntidades {
             @ApiResponse(responseCode = "400", description = "Petición mal formada")
     })
     public Mono<MapaValores> obtenerEntidadPorId(
-            @Parameter(required = true, description = "Idioma en el que se proporcionan los datos que estén internacionalizados (es, en, ...)")
-            @PathVariable final String idioma,
             @Parameter(required = true, description = "Identificador de la consulta")
             @PathVariable final String idConsulta,
             @Parameter(required = true, description = "Identificador de la entidad")
@@ -112,11 +110,11 @@ public class RecursoEntidades {
     }
 
     private Mono<MapaValores> extraerValores(Mono<EntidadGes> entidad) {
-        String userAgent = context.getHeader("User-Agent");
-        if (StringUtils.isNotBlank(userAgent) && userAgent.contains("Postman")) {
-            return entidad.map(EntidadGes::getValores).map(servicio::convertirAValoresJson);
-        } else {
+        String userAgent = context.getHeader("X-Formato");
+        if (StringUtils.isNotBlank(userAgent) && userAgent.contains("texto")) {
             return entidad.map(EntidadGes::getValores).map(servicio::convertirAValoresTexto);
+        } else {
+            return entidad.map(EntidadGes::getValores).map(servicio::convertirAValoresJson);
         }
     }
 
@@ -133,8 +131,6 @@ public class RecursoEntidades {
             @ApiResponse(responseCode = "400", description = "Petición mal formada")
     })
     public Mono<MapaValores> obtenerEntidadPorIdDoble(
-            @Parameter(required = true, description = "Idioma en el que se proporcionan los datos que estén internacionalizados (es, en, ...)")
-            @PathVariable final String idioma,
             @Parameter(required = true, description = "Identificador de la consulta")
             @PathVariable final String idConsulta,
             @Parameter(required = true, description = "Primer valor de la clave primaria")
@@ -160,8 +156,6 @@ public class RecursoEntidades {
     })
     public Mono<MapaValores> modificarEntidadPorId(
             @RequestBody String content,
-            @PathVariable final String idioma,
-            @Parameter(required = true, description = "Identificador de la consulta")
             @PathVariable final String idConsulta,
             @Parameter(required = true, description = "Identificador de la entidad")
             @PathVariable final String id) {
@@ -187,8 +181,6 @@ public class RecursoEntidades {
     })
     public Mono<MapaValores> modificarEntidadPorIdDoble(
             @RequestBody String content,
-            @PathVariable final String idioma,
-            @Parameter(required = true, description = "Identificador de la consulta")
             @PathVariable final String idConsulta,
             @Parameter(required = true, description = "Primer valor de la clave primaria")
             @PathVariable final String id1,
@@ -216,8 +208,6 @@ public class RecursoEntidades {
     public Mono<MapaValores> modificarEntidad(
             @Parameter(required = true, description = "Entidad en formato JSON")
             @RequestBody String entidadJson,
-            @Parameter(required = true, description = "Idioma en el que se proporcionan los datos que estén internacionalizados (es, en, ...)")
-            @PathVariable final String idioma,
             @Parameter(required = true, description = "Identificador de la consulta")
             @PathVariable final String idConsulta,
             @Parameter(required = true, description = "Parámetros que indican los valores de los campos clave")
@@ -225,7 +215,7 @@ public class RecursoEntidades {
 
         servicio.asignarConsulta(idioma, idConsulta);
 
-        ClavePrimaria clavePrimaria = null;
+        ClavePrimaria clavePrimaria;
         try {
             clavePrimaria = servicio.crearClavePrimaria(params);
 
@@ -251,8 +241,6 @@ public class RecursoEntidades {
     public Mono<MapaValores> insertarEntidad(
             @Parameter(required = true, description = "Entidad en formato JSON")
             @RequestBody String entidadJson,
-            @Parameter(required = true, description = "Idioma en el que se proporcionan los datos que estén internacionalizados (es, en, ...)")
-            @PathVariable final String idioma,
             @Parameter(required = true, description = "Identificador de la consulta")
             @PathVariable final String idConsulta) {
 
@@ -267,7 +255,7 @@ public class RecursoEntidades {
         }
     }
 
-    @DeleteMapping(value = "/{id}")
+    @DeleteMapping(value = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE})
     @Operation(summary = "Borrar entidad", description = "Borra una entidad especificada por su identificador")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Éxito."),
@@ -275,8 +263,6 @@ public class RecursoEntidades {
             @ApiResponse(responseCode = "500", description = "Error interno en el servidor")
     })
     public Mono<MapaValores> borrarEntidadPorId(
-            @Parameter(required = true, description = "Idioma en el que se proporcionan los datos que estén internacionalizados (es, en, ...)")
-            @PathVariable final String idioma,
             @Parameter(required = true, description = "Identificador de la consulta")
             @PathVariable final String idConsulta,
             @Parameter(required = true, description = "Identificador de la entidad")
@@ -293,7 +279,7 @@ public class RecursoEntidades {
         }
     }
 
-    @DeleteMapping(value = "/{id1}/{id2}")
+    @DeleteMapping(value = "/{id1}/{id2}", produces = {MediaType.APPLICATION_JSON_VALUE})
     @Operation(summary = "Borrar entidad", description = "Borra una entidad especificada por su clave primaria doble")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Éxito."),
@@ -302,8 +288,6 @@ public class RecursoEntidades {
             @ApiResponse(responseCode = "400", description = "Petición mal formada")
     })
     public Mono<MapaValores> borrarEntidadPorIdDoble(
-            @Parameter(required = true, description = "Idioma en el que se proporcionan los datos que estén internacionalizados (es, en, ...)")
-            @PathVariable final String idioma,
             @Parameter(required = true, description = "Identificador de la consulta")
             @PathVariable final String idConsulta,
             @Parameter(required = true, description = "Primer valor de la clave primaria")
@@ -320,7 +304,7 @@ public class RecursoEntidades {
         }
     }
 
-    @DeleteMapping(value = "")
+    @DeleteMapping(value = "", produces = {MediaType.APPLICATION_JSON_VALUE})
     @Operation(summary = "Borrar entidad con clave multiple", description = "Borra una entidad especificando valores de filtro de uno o varios campos")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Éxito."),
@@ -328,8 +312,6 @@ public class RecursoEntidades {
             @ApiResponse(responseCode = "400", description = "Petición mal formada")
     })
     public Mono<MapaValores> borrarEntidadPorFiltro(
-            @Parameter(required = true, description = "Idioma en el que se proporcionan los datos que estén internacionalizados (es, en, ...)")
-            @PathVariable final String idioma,
             @Parameter(required = true, description = "Identificador de la consulta")
             @PathVariable final String idConsulta,
             @Parameter(required = true, description = "Parámetros que indican los valores de los campos clave")
@@ -353,8 +335,6 @@ public class RecursoEntidades {
             @ApiResponse(responseCode = "400", description = "Petición mal formada")
     })
     public void exportar(
-            @Parameter(required = true, description = "Idioma en el que se proporcionan los datos que estén internacionalizados (es, en, ...)")
-            @PathVariable final String idioma,
             @Parameter(required = true, description = "Identificador de la consulta")
             @PathVariable final String idConsulta,
             @Parameter(required = true, description = "Formato a exportar (pdf, csv, xlsx)")

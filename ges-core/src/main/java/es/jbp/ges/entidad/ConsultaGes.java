@@ -74,7 +74,7 @@ public class ConsultaGes implements Serializable, Cloneable {
     private String camposFiltroPrevio;
     private String sql;
     private List<CampoGes> campos = new ArrayList();
-    private List<CampoGes> camposVisibles;
+//    private List<CampoGes> camposVisibles;
     private int estilo;
     private String camposPorDefecto;
     private String valoresPorDefecto;
@@ -166,28 +166,28 @@ public class ConsultaGes implements Serializable, Cloneable {
     
     public void setCampos(List<CampoGes> campos) {
         this.campos = campos;
-        camposVisibles = null;
+//        camposVisibles = null;
     }
 
-    public void setListaCampos(List<CampoGes> listaCampos) {
-        setCampos(listaCampos);
-    }
+//    public void setListaCampos(List<CampoGes> listaCampos) {
+//        setCampos(listaCampos);
+//    }
     
-    public List<CampoGes> getListaCampos() {
-        return getCampos();
-    }
+//    public List<CampoGes> getListaCampos() {
+//        return getCampos();
+//    }
 
-    public List<CampoGes> getListaCamposVisibles() {
-        if (camposVisibles == null) {
-            camposVisibles = new ArrayList<>();
-            campos.stream().forEach((campo) -> {
-                if (!campo.isOculto()) {
-                    camposVisibles.add(campo);
-                }
-            });
-        }
-        return camposVisibles;
-    }
+//    public List<CampoGes> getListaCamposVisibles() {
+//        if (camposVisibles == null) {
+//            camposVisibles = new ArrayList<>();
+//            campos.stream().forEach((campo) -> {
+//                if (!campo.isOculto()) {
+//                    camposVisibles.add(campo);
+//                }
+//            });
+//        }
+//        return camposVisibles;
+//    }
 
     public CampoGes getCampoPorNombre(String nombreCampo) {
         return campos.stream().filter((c) -> c.getNombre().equals(nombreCampo)).findFirst().get();
